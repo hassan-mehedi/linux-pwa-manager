@@ -11,6 +11,7 @@ pub fn init(paths: &ManagedPaths) -> Result<()> {
         .with_context(|| format!("Failed to open database {}.", paths.db_path.display()))?;
 
     migrate(&connection)?;
+    migrate_icon_paths(&connection, paths)?;
 
     Ok(())
 }
@@ -207,6 +208,32 @@ fn ensure_column(connection: &Connection, column_name: &str, statement: &str) ->
     Ok(())
 }
 
+fn migrate_icon_paths(connection: &Connection, paths: &ManagedPaths) -> Result<()> {
+    let Some(data_root) = paths.data_dir.parent() else {
+        return Ok(());
+    };
+
+    let legacy_data_dir = data_root.join(crate::paths::LEGACY_APP_DIR_NAME);
+    let legacy_prefix = legacy_data_dir.to_string_lossy().into_owned();
+    let current_prefix = paths.data_dir.to_string_lossy().into_owned();
+
+    if legacy_prefix == current_prefix {
+        return Ok(());
+    }
+
+    connection.execute(
+        r#"
+        UPDATE webapps
+        SET icon_path = replace(icon_path, ?1, ?2)
+        WHERE icon_path IS NOT NULL
+          AND icon_path LIKE ?3
+        "#,
+        params![legacy_prefix, current_prefix, format!("{legacy_prefix}%")],
+    )?;
+
+    Ok(())
+}
+
 fn map_webapp_row(row: &Row<'_>) -> rusqlite::Result<WebApp> {
     Ok(WebApp {
         id: row.get(0)?,
@@ -233,7 +260,8 @@ mod tests {
     use crate::models::webapp::{BrowserChoice, WindowMode};
 
     fn temp_paths() -> ManagedPaths {
-        let root = std::env::temp_dir().join(format!("webapp-manager-db-{}", uuid::Uuid::new_v4()));
+        let root =
+            std::env::temp_dir().join(format!("linux-pwa-manager-db-{}", uuid::Uuid::new_v4()));
         let data_dir = root.join("data");
         let config_dir = root.join("config");
         let state_dir = root.join("state");
@@ -385,6 +413,51 @@ mod tests {
 
         let unique = ensure_unique_url(&paths, "https://calendar.example.com", None);
         assert!(unique.is_ok());
+
+        fs::remove_dir_all(paths.data_dir.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn init_rewrites_legacy_icon_paths_to_new_data_directory() {
+        let paths = temp_paths();
+        let legacy_icon_path = paths
+            .data_dir
+            .parent()
+            .unwrap()
+            .join(crate::paths::LEGACY_APP_DIR_NAME)
+            .join("icons/mail.png");
+
+        let connection = Connection::open(&paths.db_path).unwrap();
+        migrate(&connection).unwrap();
+        connection
+            .execute(
+                r#"
+                INSERT INTO webapps (id, name, url, icon_path, category, browser, nav_bar, isolated, tray, window_mode)
+                VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+                "#,
+                params![
+                    "mail",
+                    "Mail",
+                    "https://mail.example.com",
+                    legacy_icon_path.to_string_lossy().into_owned(),
+                    "Internet",
+                    BrowserChoice::Chrome.as_str(),
+                    0i64,
+                    1i64,
+                    0i64,
+                    WindowMode::Normal.as_str()
+                ],
+            )
+            .unwrap();
+        drop(connection);
+
+        init(&paths).unwrap();
+
+        let stored = find_webapp(&paths, "mail").unwrap().unwrap();
+        assert_eq!(
+            stored.icon_path.as_deref(),
+            Some(paths.icons_dir.join("mail.png").to_string_lossy().as_ref())
+        );
 
         fs::remove_dir_all(paths.data_dir.parent().unwrap()).unwrap();
     }

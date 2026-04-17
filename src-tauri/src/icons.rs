@@ -84,7 +84,7 @@ fn save_uploaded_icon(paths: &ManagedPaths, webapp_id: &str, data_url: &str) -> 
 
 fn build_client(timeout_secs: u64) -> Result<Client> {
     Client::builder()
-        .user_agent("webapp-manager/0.1")
+        .user_agent("linux-pwa-manager/0.1")
         .timeout(Duration::from_secs(timeout_secs))
         .build()
         .context("Failed to build HTTP client.")

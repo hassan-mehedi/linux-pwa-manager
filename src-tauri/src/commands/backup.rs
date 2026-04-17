@@ -195,7 +195,9 @@ fn ensure_managed_path(paths: &ManagedPaths, path: &Path) -> Result<()> {
         return Ok(());
     }
 
-    Err(anyhow!("Path is outside the managed Web Apps directories."))
+    Err(anyhow!(
+        "Path is outside the managed Linux PWA Manager directories."
+    ))
 }
 
 fn canonicalize_existing(path: &Path) -> Result<PathBuf> {
@@ -210,7 +212,8 @@ mod tests {
     use crate::models::webapp::{BrowserChoice, WindowMode};
 
     fn temp_paths() -> ManagedPaths {
-        let root = std::env::temp_dir().join(format!("webapp-manager-backup-{}", Uuid::new_v4()));
+        let root =
+            std::env::temp_dir().join(format!("linux-pwa-manager-backup-{}", Uuid::new_v4()));
         let data_dir = root.join("data");
         let config_dir = root.join("config");
         let state_dir = root.join("state");

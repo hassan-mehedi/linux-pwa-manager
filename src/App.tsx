@@ -262,7 +262,7 @@ export default function App() {
               <AppsIcon />
             </div>
             <div className="app-brand-copy">
-              <p className="app-eyebrow">Web App Manager</p>
+              <p className="app-eyebrow">Linux PWA Manager</p>
               <h1>Modern launchers for the sites you use every day</h1>
             </div>
           </div>

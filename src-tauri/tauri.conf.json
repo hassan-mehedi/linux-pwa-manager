@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Web Apps",
+  "productName": "Linux PWA Manager",
   "version": "0.1.0",
-  "identifier": "cc.denom.webappmanager",
+  "identifier": "cc.denom.linuxpwamanager",
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Web Apps",
+        "title": "Linux PWA Manager",
         "width": 1280,
         "height": 860,
         "minWidth": 980,

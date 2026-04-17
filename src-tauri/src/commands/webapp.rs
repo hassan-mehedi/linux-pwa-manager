@@ -325,7 +325,7 @@ mod tests {
 
     fn temp_paths() -> ManagedPaths {
         let root =
-            std::env::temp_dir().join(format!("webapp-manager-command-{}", uuid::Uuid::new_v4()));
+            std::env::temp_dir().join(format!("linux-pwa-manager-command-{}", uuid::Uuid::new_v4()));
         let data_dir = root.join("data");
         let config_dir = root.join("config");
         let state_dir = root.join("state");

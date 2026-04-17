@@ -1,4 +1,4 @@
-# WebApp Manager
+# Linux PWA Manager
 
 Linux desktop app for turning websites into app-style launchers with isolated profiles, generated `.desktop` entries, and a shared GUI/CLI core.
 
@@ -51,23 +51,23 @@ npm run tauri dev
 ## CLI examples
 
 ```bash
-webapp-manager add --name YouTube --url youtube.com --browser chromium
-webapp-manager list --json
-webapp-manager launch YouTube
-webapp-manager export ~/backups/web-apps.json
-webapp-manager import ~/backups/web-apps.json --replace-existing
+linux-pwa-manager add --name YouTube --url youtube.com --browser chromium
+linux-pwa-manager list --json
+linux-pwa-manager launch YouTube
+linux-pwa-manager export ~/backups/web-apps.json
+linux-pwa-manager import ~/backups/web-apps.json --replace-existing
 ```
 
-`webapp-manager add` now uses the saved default browser and default window mode when those flags are omitted.
+`linux-pwa-manager add` now uses the saved default browser and default window mode when those flags are omitted.
 
 ## XDG paths
 
-- Database: `$XDG_DATA_HOME/webapp-manager/webapps.db`
-- Icons: `$XDG_DATA_HOME/webapp-manager/icons/`
-- Profiles: `$XDG_DATA_HOME/webapp-manager/profiles/`
+- Database: `$XDG_DATA_HOME/linux-pwa-manager/webapps.db`
+- Icons: `$XDG_DATA_HOME/linux-pwa-manager/icons/`
+- Profiles: `$XDG_DATA_HOME/linux-pwa-manager/profiles/`
 - Desktop entries: `$XDG_DATA_HOME/applications/`
-- Config: `$XDG_CONFIG_HOME/webapp-manager/`
-- State: `$XDG_STATE_HOME/webapp-manager/`
+- Config: `$XDG_CONFIG_HOME/linux-pwa-manager/`
+- State: `$XDG_STATE_HOME/linux-pwa-manager/`
 
 ## Backup Format
 

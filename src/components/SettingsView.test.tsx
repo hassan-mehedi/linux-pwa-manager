@@ -17,13 +17,13 @@ vi.mock("../lib/tauri", () => ({
 }));
 
 const mockInfo = {
-  dataDir: "/home/mehedi/.local/share/webapp-manager",
-  configDir: "/home/mehedi/.config/webapp-manager",
-  stateDir: "/home/mehedi/.local/state/webapp-manager",
-  dbPath: "/home/mehedi/.local/share/webapp-manager/webapps.db",
+  dataDir: "/home/mehedi/.local/share/linux-pwa-manager",
+  configDir: "/home/mehedi/.config/linux-pwa-manager",
+  stateDir: "/home/mehedi/.local/state/linux-pwa-manager",
+  dbPath: "/home/mehedi/.local/share/linux-pwa-manager/webapps.db",
   desktopDir: "/home/mehedi/.local/share/applications",
-  profilesDir: "/home/mehedi/.local/share/webapp-manager/profiles",
-  iconsDir: "/home/mehedi/.local/share/webapp-manager/icons",
+  profilesDir: "/home/mehedi/.local/share/linux-pwa-manager/profiles",
+  iconsDir: "/home/mehedi/.local/share/linux-pwa-manager/icons",
 };
 
 const mockSettings = {
@@ -53,13 +53,13 @@ describe("SettingsView", () => {
     render(<SettingsView />);
 
     await waitFor(() => {
-    expect(screen.getByText("/home/mehedi/.local/share/webapp-manager/webapps.db")).toBeInTheDocument();
+    expect(screen.getByText("/home/mehedi/.local/share/linux-pwa-manager/webapps.db")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("/home/mehedi/.config/webapp-manager")).toBeInTheDocument();
-    expect(screen.getByText("/home/mehedi/.local/state/webapp-manager")).toBeInTheDocument();
-    expect(screen.getByText("/home/mehedi/.local/share/webapp-manager/icons")).toBeInTheDocument();
-    expect(screen.getByText("/home/mehedi/.local/share/webapp-manager/profiles")).toBeInTheDocument();
+    expect(screen.getByText("/home/mehedi/.config/linux-pwa-manager")).toBeInTheDocument();
+    expect(screen.getByText("/home/mehedi/.local/state/linux-pwa-manager")).toBeInTheDocument();
+    expect(screen.getByText("/home/mehedi/.local/share/linux-pwa-manager/icons")).toBeInTheDocument();
+    expect(screen.getByText("/home/mehedi/.local/share/linux-pwa-manager/profiles")).toBeInTheDocument();
     expect(screen.getByText("/home/mehedi/.local/share/applications")).toBeInTheDocument();
     expect(screen.getByText("Save settings")).toBeInTheDocument();
   });

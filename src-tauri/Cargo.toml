@@ -1,12 +1,12 @@
 [package]
-name = "webapp-manager"
+name = "linux-pwa-manager"
 version = "0.1.0"
 description = "Turn websites into Linux desktop applications."
 authors = ["Mehedi Hasan"]
 edition = "2021"
 
 [lib]
-name = "webapp_manager"
+name = "linux_pwa_manager"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

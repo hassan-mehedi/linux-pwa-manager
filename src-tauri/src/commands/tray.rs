@@ -6,7 +6,7 @@ use tauri::{AppHandle, Manager};
 use crate::db;
 use crate::paths::ManagedPaths;
 
-const TRAY_ID: &str = "webapp-manager-tray";
+const TRAY_ID: &str = "linux-pwa-manager-tray";
 const OPEN_MANAGER_ID: &str = "tray-open-manager";
 const QUIT_ID: &str = "tray-quit";
 const LAUNCH_PREFIX: &str = "tray-launch:";
@@ -56,7 +56,7 @@ pub fn refresh(app: Option<&AppHandle>, paths: &ManagedPaths) -> Result<()> {
 
     let mut builder = TrayIconBuilder::with_id(TRAY_ID)
         .menu(&menu)
-        .tooltip("Web Apps")
+        .tooltip("Linux PWA Manager")
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| {
             if let Err(error) = handle_menu_event(app, event.id.as_ref()) {

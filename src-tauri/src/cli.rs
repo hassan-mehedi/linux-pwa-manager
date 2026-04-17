@@ -7,7 +7,7 @@ use crate::models::webapp::{BrowserChoice, WebAppPayload, WindowMode};
 use crate::paths::ManagedPaths;
 
 #[derive(Debug, Parser)]
-#[command(name = "webapp-manager")]
+#[command(name = "linux-pwa-manager")]
 #[command(about = "Turn websites into Linux desktop applications.")]
 pub struct Cli {
     #[command(subcommand)]
