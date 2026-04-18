@@ -331,12 +331,14 @@ mod tests {
     fn desktop_entry_quotes_exec_arguments() {
         let webapp = test_webapp();
 
-        let content =
-            desktop_entry_content(&webapp, Path::new("/opt/Linux PWA Manager/linux-pwa-manager"));
+        let content = desktop_entry_content(
+            &webapp,
+            Path::new("/opt/Linux PWA Manager/linux-pwa-manager"),
+        );
 
-        assert!(content.contains(
-            "Exec=\"/opt/Linux PWA Manager/linux-pwa-manager\" launch \"mail\""
-        ));
+        assert!(
+            content.contains("Exec=\"/opt/Linux PWA Manager/linux-pwa-manager\" launch \"mail\"")
+        );
     }
 
     #[test]

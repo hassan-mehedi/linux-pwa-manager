@@ -117,10 +117,8 @@ mod tests {
 
     #[test]
     fn migrates_legacy_managed_directories_to_new_slug() {
-        let root = std::env::temp_dir().join(format!(
-            "linux-pwa-manager-paths-{}",
-            uuid::Uuid::new_v4()
-        ));
+        let root =
+            std::env::temp_dir().join(format!("linux-pwa-manager-paths-{}", uuid::Uuid::new_v4()));
         let data_root = root.join("data-root");
         let config_root = root.join("config-root");
         let state_root = root.join("state-root");
@@ -153,10 +151,8 @@ mod tests {
 
     #[test]
     fn keeps_new_directories_when_they_already_exist() {
-        let root = std::env::temp_dir().join(format!(
-            "linux-pwa-manager-paths-{}",
-            uuid::Uuid::new_v4()
-        ));
+        let root =
+            std::env::temp_dir().join(format!("linux-pwa-manager-paths-{}", uuid::Uuid::new_v4()));
         let data_root = root.join("data-root");
         let config_root = root.join("config-root");
         let state_root = root.join("state-root");
