@@ -11,6 +11,7 @@ const MANAGER_DESKTOP_FILENAME: &str = "linux-pwa-manager.desktop";
 const LEGACY_MANAGER_DESKTOP_FILENAME: &str = "webapp-manager.desktop";
 const MANAGER_AUTOSTART_FILENAME: &str = "linux-pwa-manager.desktop";
 const LEGACY_MANAGER_AUTOSTART_FILENAME: &str = "webapp-manager.desktop";
+const MANAGER_ICON_FILENAME: &str = "linux-pwa-manager.png";
 
 pub fn write_desktop_entry(paths: &ManagedPaths, webapp: &WebApp) -> Result<()> {
     let executable = launcher_executable_path()?;
@@ -25,9 +26,10 @@ pub fn write_desktop_entry(paths: &ManagedPaths, webapp: &WebApp) -> Result<()> 
 
 pub fn sync_manager_desktop_entry(paths: &ManagedPaths) -> Result<()> {
     let executable = launcher_executable_path()?;
+    sync_manager_icon(paths)?;
     let entry_path = manager_desktop_entry_path(paths);
     let legacy_entry_path = legacy_manager_desktop_entry_path(paths);
-    let content = manager_desktop_entry_content(&executable);
+    let content = manager_desktop_entry_content(paths, &executable);
 
     if legacy_entry_path.exists() {
         fs::remove_file(&legacy_entry_path).with_context(|| {
@@ -99,6 +101,24 @@ fn refresh_desktop_database(paths: &ManagedPaths) {
     let _ = Command::new("update-desktop-database")
         .arg(&paths.desktop_dir)
         .status();
+}
+
+fn sync_manager_icon(paths: &ManagedPaths) -> Result<()> {
+    let source_icon = bundled_manager_icon_path();
+    if !source_icon.exists() {
+        return Ok(());
+    }
+
+    let target_icon = manager_icon_storage_path(paths);
+    fs::copy(&source_icon, &target_icon).with_context(|| {
+        format!(
+            "Failed to copy manager icon from {} to {}.",
+            source_icon.display(),
+            target_icon.display()
+        )
+    })?;
+
+    Ok(())
 }
 
 pub fn desktop_entry_path(paths: &ManagedPaths, webapp_id: &str) -> std::path::PathBuf {
@@ -186,9 +206,9 @@ fn desktop_entry_content(webapp: &WebApp, executable: &Path) -> String {
     )
 }
 
-fn manager_desktop_entry_content(executable: &Path) -> String {
+fn manager_desktop_entry_content(paths: &ManagedPaths, executable: &Path) -> String {
     let exec = escape_exec_arg(&sanitize_entry_field(&executable.to_string_lossy()));
-    let icon = manager_icon_path()
+    let icon = manager_icon_path(paths)
         .map(|path| sanitize_entry_field(&path.to_string_lossy()))
         .unwrap_or_else(|| "linux-pwa-manager".to_owned());
     format!(
@@ -206,9 +226,22 @@ fn autostart_entry_content(executable: &Path) -> String {
     )
 }
 
-fn manager_icon_path() -> Option<PathBuf> {
-    let source_icon = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("icons/icon.png");
+fn manager_icon_path(paths: &ManagedPaths) -> Option<PathBuf> {
+    let managed_icon = manager_icon_storage_path(paths);
+    if managed_icon.exists() {
+        return Some(managed_icon);
+    }
+
+    let source_icon = bundled_manager_icon_path();
     source_icon.exists().then_some(source_icon)
+}
+
+fn manager_icon_storage_path(paths: &ManagedPaths) -> PathBuf {
+    paths.icons_dir.join(MANAGER_ICON_FILENAME)
+}
+
+fn bundled_manager_icon_path() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("icons/icon.png")
 }
 
 #[cfg(test)]

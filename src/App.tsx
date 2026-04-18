@@ -10,6 +10,7 @@ import {
   PencilIcon,
   PlayIcon,
   PlusIcon,
+  SearchIcon,
   SettingsIcon,
   ShieldIcon,
   TrayIcon,
@@ -136,6 +137,8 @@ export default function App() {
 
   const selectedWebApp = webApps.find((item) => item.id === selectedId) ?? null;
   const editingWebApp = webApps.find((item) => item.id === editingId) ?? null;
+  const hasSavedWebApps = webApps.length > 0;
+  const isSearching = searchQuery.trim().length > 0;
   const errors = [error, browserError, actionError].filter(Boolean);
 
   const stats = [
@@ -357,6 +360,7 @@ export default function App() {
                   selectedId={selectedId}
                   onSelect={setSelectedId}
                   onLaunch={handleLaunch}
+                  onCreate={openCreateDialog}
                 />
               )}
             </div>
@@ -454,11 +458,68 @@ export default function App() {
                   </span>
                 </div>
               </>
+            ) : hasSavedWebApps && isSearching ? (
+              <div className="empty-state detail-empty detail-empty-compact">
+                <div className="empty-state-icon" aria-hidden="true">
+                  <SearchIcon />
+                </div>
+                <div className="empty-state-copy">
+                  <h3>No matching web app selected</h3>
+                  <p>Clear your search or pick a different launcher from the library to view its runtime and window settings.</p>
+                </div>
+                <button className="ghost-button" type="button" onClick={() => setSearchQuery("")}>
+                  <SearchIcon />
+                  <span>Clear Search</span>
+                </button>
+              </div>
             ) : (
               <div className="empty-state detail-empty">
-                <SettingsIcon />
-                <h3>No web app selected</h3>
-                <p>Pick one from the library or create a new launcher to configure runtime and advanced window options.</p>
+                <div className="detail-empty-hero">
+                  <div className="detail-empty-visual" aria-hidden="true">
+                    <div className="detail-empty-icon">
+                      <AppsIcon />
+                    </div>
+                    <span className="detail-empty-pill">
+                      <BrowserIcon />
+                      Pick a runtime
+                    </span>
+                    <span className="detail-empty-pill">
+                      <LayoutIcon />
+                      Tune the window
+                    </span>
+                    <span className="detail-empty-pill">
+                      <ShieldIcon />
+                      Isolate storage
+                    </span>
+                  </div>
+
+                  <div className="detail-empty-copy">
+                    <p className="app-eyebrow">First launch</p>
+                    <h3>Create your first web app</h3>
+                    <p>Turn any site into a desktop launcher with its own browser runtime, window behavior, and profile isolation.</p>
+                  </div>
+                </div>
+
+                <div className="detail-empty-grid">
+                  <article className="detail-empty-card">
+                    <BrowserIcon />
+                    <strong>Choose how it runs</strong>
+                    <p>Use the built-in window or launch through any detected browser.</p>
+                  </article>
+
+                  <article className="detail-empty-card">
+                    <LayoutIcon />
+                    <strong>Shape the window</strong>
+                    <p>Start normal, maximized, or fullscreen and decide whether navigation stays visible.</p>
+                  </article>
+
+                  <article className="detail-empty-card">
+                    <ShieldIcon />
+                    <strong>Control app data</strong>
+                    <p>Keep sites in a dedicated profile when you want storage and sessions separated.</p>
+                  </article>
+                </div>
+
                 <button className="app-primary-button" type="button" onClick={openCreateDialog}>
                   <PlusIcon />
                   <span>Create your first web app</span>

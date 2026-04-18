@@ -1,3 +1,4 @@
+import { AppsIcon, PlusIcon } from "./Icons";
 import { toAssetUrl, type WebApp } from "../lib/tauri";
 
 interface WebAppListProps {
@@ -5,6 +6,7 @@ interface WebAppListProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onLaunch: (id: string) => void;
+  onCreate?: () => void;
 }
 
 function hostnameFromUrl(url: string) {
@@ -21,12 +23,26 @@ export function WebAppList({
   selectedId,
   onSelect,
   onLaunch,
+  onCreate,
 }: WebAppListProps) {
   if (items.length === 0) {
     return (
-      <div className="empty-state">
-        <h3>No web apps created yet</h3>
-        <p>Use the add button below to create your first launcher.</p>
+      <div className="empty-state empty-library-state">
+        <div className="empty-state-icon" aria-hidden="true">
+          <AppsIcon />
+        </div>
+
+        <div className="empty-state-copy">
+          <h3>Your library is empty</h3>
+          <p>Create a web app to save a site as its own launcher with isolated profiles and window options.</p>
+        </div>
+
+        {onCreate ? (
+          <button className="ghost-button" type="button" onClick={onCreate}>
+            <PlusIcon />
+            <span>New Web App</span>
+          </button>
+        ) : null}
       </div>
     );
   }

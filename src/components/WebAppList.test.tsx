@@ -32,8 +32,29 @@ describe("WebAppList", () => {
       <WebAppList items={[]} selectedId={null} onSelect={vi.fn()} onLaunch={vi.fn()} />,
     );
 
-    expect(screen.getByText("No web apps created yet")).toBeInTheDocument();
-    expect(screen.getByText("Use the add button below to create your first launcher.")).toBeInTheDocument();
+    expect(screen.getByText("Your library is empty")).toBeInTheDocument();
+    expect(
+      screen.getByText("Create a web app to save a site as its own launcher with isolated profiles and window options."),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the create action in the empty state when provided", async () => {
+    const onCreate = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <WebAppList
+        items={[]}
+        selectedId={null}
+        onSelect={vi.fn()}
+        onLaunch={vi.fn()}
+        onCreate={onCreate}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "New Web App" }));
+
+    expect(onCreate).toHaveBeenCalledTimes(1);
   });
 
   it("selects on click and launches on double click", async () => {
