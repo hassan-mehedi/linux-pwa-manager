@@ -2,6 +2,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::webapp::{BrowserChoice, WindowMode};
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ThemePreference {
+    #[default]
+    Light,
+    Dark,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct AppSettings {
@@ -17,6 +25,8 @@ pub struct AppSettings {
     pub default_window_mode: WindowMode,
     /// Launch the manager in the background when the user logs in.
     pub launch_on_login: bool,
+    /// Preferred color theme for the manager UI.
+    pub theme: ThemePreference,
 }
 
 impl Default for AppSettings {
@@ -28,6 +38,7 @@ impl Default for AppSettings {
             default_browser: BrowserChoice::Auto,
             default_window_mode: WindowMode::Normal,
             launch_on_login: false,
+            theme: ThemePreference::Light,
         }
     }
 }
@@ -45,6 +56,7 @@ mod tests {
         assert_eq!(s.default_browser, BrowserChoice::Auto);
         assert_eq!(s.default_window_mode, WindowMode::Normal);
         assert!(!s.launch_on_login);
+        assert_eq!(s.theme, ThemePreference::Light);
     }
 
     #[test]
@@ -56,6 +68,7 @@ mod tests {
             default_browser: BrowserChoice::Firefox,
             default_window_mode: WindowMode::Maximized,
             launch_on_login: true,
+            theme: ThemePreference::Dark,
         };
         let serialized = toml::to_string(&original).unwrap();
         let deserialized: AppSettings = toml::from_str(&serialized).unwrap();
@@ -65,5 +78,21 @@ mod tests {
         assert_eq!(deserialized.default_browser, BrowserChoice::Firefox);
         assert_eq!(deserialized.default_window_mode, WindowMode::Maximized);
         assert!(deserialized.launch_on_login);
+        assert_eq!(deserialized.theme, ThemePreference::Dark);
+    }
+
+    #[test]
+    fn missing_theme_defaults_to_light_when_loading_legacy_settings() {
+        let legacy = r#"
+http_timeout_secs = 20
+max_icon_size_mb = 8
+history_limit = 120
+default_browser = "chrome"
+default_window_mode = "fullscreen"
+launch_on_login = true
+"#;
+
+        let deserialized: AppSettings = toml::from_str(legacy).unwrap();
+        assert_eq!(deserialized.theme, ThemePreference::Light);
     }
 }

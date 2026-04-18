@@ -275,6 +275,7 @@ mod tests {
                 default_browser: crate::models::webapp::BrowserChoice::Firefox,
                 default_window_mode: crate::models::webapp::WindowMode::Maximized,
                 launch_on_login: true,
+                theme: crate::models::settings::ThemePreference::Dark,
             },
         )
         .unwrap();

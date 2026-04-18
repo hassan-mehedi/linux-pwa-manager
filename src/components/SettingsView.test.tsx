@@ -33,6 +33,7 @@ const mockSettings = {
   defaultBrowser: "auto",
   defaultWindowMode: "normal",
   launchOnLogin: false,
+  theme: "light",
 };
 
 describe("SettingsView", () => {
@@ -62,6 +63,7 @@ describe("SettingsView", () => {
     expect(screen.getByText("/home/mehedi/.local/share/linux-pwa-manager/profiles")).toBeInTheDocument();
     expect(screen.getByText("/home/mehedi/.local/share/applications")).toBeInTheDocument();
     expect(screen.getByText("Save settings")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Theme" })).toHaveValue("light");
   });
 
   it("shows an error when loading fails", async () => {

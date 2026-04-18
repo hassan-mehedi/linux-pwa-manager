@@ -11,6 +11,7 @@ import {
   type AppInfo,
   type AppSettings,
   type BrowserChoice,
+  type ThemePreference,
   type WindowMode,
 } from "../lib/tauri";
 
@@ -36,7 +37,7 @@ function PathRow({
         <dt>{label}</dt>
         <dd>{value}</dd>
       </div>
-      <div className="detail-actions" style={{ marginLeft: "auto" }}>
+      <div className="detail-actions drawer-path-actions">
         <button className="ghost-button" type="button" onClick={onCopy}>
           Copy
         </button>
@@ -49,9 +50,11 @@ function PathRow({
 }
 
 export function SettingsView({
+  currentSettings,
   onSettingsSaved,
   onBackupImported,
 }: {
+  currentSettings?: AppSettings;
   onSettingsSaved?: (settings: AppSettings) => void;
   onBackupImported?: () => void;
 }) {
@@ -95,6 +98,14 @@ export function SettingsView({
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!currentSettings) {
+      return;
+    }
+
+    setSettings((current) => (current ? currentSettings : current));
+  }, [currentSettings]);
 
   async function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -221,9 +232,8 @@ export function SettingsView({
           </div>
 
           <form onSubmit={handleSave}>
-            <div className="drawer-path-list" style={{ gap: "12px" }}>
-
-              <label className="mint-field-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+            <div className="drawer-form-stack">
+              <label className="mint-field-row stacked-field">
                 <span className="mint-field-label">HTTP timeout (seconds)</span>
                 <input
                   className="mint-input"
@@ -235,7 +245,7 @@ export function SettingsView({
                 />
               </label>
 
-              <label className="mint-field-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+              <label className="mint-field-row stacked-field">
                 <span className="mint-field-label">Max icon size (MB)</span>
                 <input
                   className="mint-input"
@@ -247,7 +257,7 @@ export function SettingsView({
                 />
               </label>
 
-              <label className="mint-field-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+              <label className="mint-field-row stacked-field">
                 <span className="mint-field-label">Navigation history limit (entries)</span>
                 <input
                   className="mint-input"
@@ -259,7 +269,19 @@ export function SettingsView({
                 />
               </label>
 
-              <label className="mint-field-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+              <label className="mint-field-row stacked-field">
+                <span className="mint-field-label">Theme</span>
+                <select
+                  className="mint-input mint-select"
+                  value={settings.theme}
+                  onChange={(e) => updateSetting("theme", e.target.value as ThemePreference)}
+                >
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+
+              <label className="mint-field-row stacked-field">
                 <span className="mint-field-label">Default browser</span>
                 <select
                   className="mint-input mint-select"
@@ -277,7 +299,7 @@ export function SettingsView({
                 </select>
               </label>
 
-              <label className="mint-field-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+              <label className="mint-field-row stacked-field">
                 <span className="mint-field-label">Default window mode</span>
                 <select
                   className="mint-input mint-select"
@@ -308,10 +330,10 @@ export function SettingsView({
               </label>
             </div>
 
-            {saveError ? <p className="error-banner" style={{ marginTop: "8px" }}>{saveError}</p> : null}
-            {saveSuccess ? <p className="success-banner" style={{ marginTop: "8px" }}>Settings saved.</p> : null}
+            {saveError ? <p className="error-banner section-status">{saveError}</p> : null}
+            {saveSuccess ? <p className="success-banner section-status">Settings saved.</p> : null}
 
-            <div style={{ marginTop: "12px" }}>
+            <div className="section-actions">
               <button className="mint-primary-button" type="submit" disabled={saving}>
                 {saving ? "Saving…" : "Save settings"}
               </button>
@@ -335,7 +357,7 @@ export function SettingsView({
         </div>
         <p className="drawer-empty">Export or import your web apps, icons, and settings as JSON.</p>
 
-        <label className="mint-field-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
+        <label className="mint-field-row stacked-field">
           <span className="mint-field-label">Backup file path</span>
           <input
             className="mint-input"
@@ -345,7 +367,7 @@ export function SettingsView({
           />
         </label>
 
-        <label className="mint-switch-row" style={{ marginTop: "12px" }}>
+        <label className="mint-switch-row backup-switch">
           <div className="mint-switch-copy">
             <span>Replace existing library on import</span>
             <small>Turn this on to wipe the current library before restoring the backup.</small>
@@ -362,7 +384,7 @@ export function SettingsView({
           </span>
         </label>
 
-        <div className="detail-actions" style={{ marginTop: "12px" }}>
+        <div className="detail-actions section-actions">
           <button className="ghost-button" type="button" disabled={backupBusy !== null} onClick={() => void handleExportBackup()}>
             {backupBusy === "export" ? "Exporting…" : "Export backup"}
           </button>
@@ -371,8 +393,8 @@ export function SettingsView({
           </button>
         </div>
 
-        {backupError ? <p className="error-banner" style={{ marginTop: "8px" }}>{backupError}</p> : null}
-        {backupSuccess ? <p className="success-banner" style={{ marginTop: "8px" }}>{backupSuccess}</p> : null}
+        {backupError ? <p className="error-banner section-status">{backupError}</p> : null}
+        {backupSuccess ? <p className="success-banner section-status">{backupSuccess}</p> : null}
       </section>
     </>
   );

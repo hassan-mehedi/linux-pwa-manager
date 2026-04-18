@@ -1,4 +1,5 @@
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 export type BrowserChoice =
   | "auto"
@@ -11,6 +12,7 @@ export type BrowserChoice =
   | "embedded";
 
 export type WindowMode = "normal" | "maximized" | "fullscreen";
+export type ThemePreference = "light" | "dark";
 
 export interface WebApp {
   id: string;
@@ -68,6 +70,7 @@ export interface AppSettings {
   defaultBrowser: BrowserChoice;
   defaultWindowMode: WindowMode;
   launchOnLogin: boolean;
+  theme: ThemePreference;
 }
 
 export interface EmbeddedPageState {
@@ -187,4 +190,20 @@ export function errorMessage(error: unknown, fallback: string) {
   }
 
   return fallback;
+}
+
+export function minimizeCurrentWindow() {
+  return getCurrentWindow().minimize();
+}
+
+export function toggleCurrentWindowMaximize() {
+  return getCurrentWindow().toggleMaximize();
+}
+
+export function closeCurrentWindow() {
+  return getCurrentWindow().close();
+}
+
+export function startDraggingCurrentWindow() {
+  return getCurrentWindow().startDragging();
 }

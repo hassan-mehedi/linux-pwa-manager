@@ -246,3 +246,27 @@ export function SquareIcon(props: IconProps) {
     </IconBase>
   );
 }
+
+export function SunIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.75v2.5" />
+      <path d="M12 18.75v2.5" />
+      <path d="m5.46 5.46 1.77 1.77" />
+      <path d="m16.77 16.77 1.77 1.77" />
+      <path d="M2.75 12h2.5" />
+      <path d="M18.75 12h2.5" />
+      <path d="m5.46 18.54 1.77-1.77" />
+      <path d="m16.77 7.23 1.77-1.77" />
+    </IconBase>
+  );
+}
+
+export function MoonIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M18 13.2A6.8 6.8 0 1 1 10.8 6a5.4 5.4 0 0 0 7.2 7.2Z" />
+    </IconBase>
+  );
+}

@@ -3,16 +3,21 @@ import { EmbeddedShell } from "./components/EmbeddedShell";
 import {
   AppsIcon,
   BrowserIcon,
+  CloseIcon,
   ExternalIcon,
   GlobeIcon,
   LayoutIcon,
   MenuIcon,
+  MinimizeIcon,
+  MoonIcon,
   PencilIcon,
   PlayIcon,
   PlusIcon,
   SearchIcon,
   SettingsIcon,
   ShieldIcon,
+  SquareIcon,
+  SunIcon,
   TrayIcon,
   TrashIcon,
 } from "./components/Icons";
@@ -23,12 +28,18 @@ import { WebAppList } from "./components/WebAppList";
 import { useBrowsers } from "./hooks/useBrowsers";
 import { useWebApps } from "./hooks/useWebApps";
 import {
+  closeCurrentWindow,
   errorMessage,
   getSettings,
+  minimizeCurrentWindow,
+  saveSettings,
+  startDraggingCurrentWindow,
+  toggleCurrentWindowMaximize,
   type AppSettings,
   toAssetUrl,
   type BrowserChoice,
   type DetectedBrowser,
+  type ThemePreference,
   type WebAppPayload,
   type WindowMode,
 } from "./lib/tauri";
@@ -72,14 +83,20 @@ const defaultAppSettings: AppSettings = {
   defaultBrowser: "auto",
   defaultWindowMode: "normal",
   launchOnLogin: false,
+  theme: "light",
 };
 
-export default function App() {
-  const mode = new URLSearchParams(window.location.search).get("mode");
-  if (mode === "embedded") {
-    return <EmbeddedShell />;
-  }
+function applyTheme(theme: ThemePreference) {
+  document.documentElement.dataset.theme = theme;
+}
 
+function ManagerApp({
+  appSettings,
+  onSettingsSaved,
+}: {
+  appSettings: AppSettings;
+  onSettingsSaved: (settings: AppSettings) => void;
+}) {
   const { webApps, loading, error, refresh: refreshWebApps, create, update, remove, launch } = useWebApps();
   const { browsers, error: browserError, refresh } = useBrowsers();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -89,7 +106,6 @@ export default function App() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings);
   const deleteButtonRef = useRef<HTMLElement | null>(null);
 
   const filteredWebApps = useMemo(
@@ -105,26 +121,6 @@ export default function App() {
         : webApps,
     [webApps, searchQuery]
   );
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadSettings() {
-      try {
-        const settings = await getSettings();
-        if (!cancelled) {
-          setAppSettings(settings);
-        }
-      } catch {
-        // Keep built-in defaults if settings cannot be loaded here.
-      }
-    }
-
-    void loadSettings();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     setSelectedId((current) => {
@@ -186,6 +182,63 @@ export default function App() {
       await launch(id);
     } catch (err) {
       setActionError(errorMessage(err, "Failed to launch web app."));
+    }
+  }
+
+  async function handleToggleTheme() {
+    const nextTheme: ThemePreference = appSettings.theme === "dark" ? "light" : "dark";
+    const nextSettings = { ...appSettings, theme: nextTheme };
+    setActionError(null);
+    onSettingsSaved(nextSettings);
+    try {
+      await saveSettings(nextSettings);
+    } catch (err) {
+      onSettingsSaved(appSettings);
+      setActionError(errorMessage(err, "Failed to save theme preference."));
+    }
+  }
+
+  async function handleMinimizeWindow() {
+    try {
+      setActionError(null);
+      await minimizeCurrentWindow();
+    } catch (err) {
+      setActionError(errorMessage(err, "Failed to minimize the window."));
+    }
+  }
+
+  async function handleToggleMaximizeWindow() {
+    try {
+      setActionError(null);
+      await toggleCurrentWindowMaximize();
+    } catch (err) {
+      setActionError(errorMessage(err, "Failed to resize the window."));
+    }
+  }
+
+  async function handleCloseWindow() {
+    try {
+      setActionError(null);
+      await closeCurrentWindow();
+    } catch (err) {
+      setActionError(errorMessage(err, "Failed to close the window."));
+    }
+  }
+
+  async function handleStartWindowDrag(event: React.MouseEvent<HTMLElement>) {
+    if (event.button !== 0) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    if (target.closest("button, input, select, textarea, a")) {
+      return;
+    }
+
+    try {
+      await startDraggingCurrentWindow();
+    } catch (err) {
+      setActionError(errorMessage(err, "Failed to drag the window."));
     }
   }
 
@@ -259,6 +312,49 @@ export default function App() {
   return (
     <main className="app-shell">
       <section className="app-frame">
+        <header className="window-titlebar">
+          <div
+            className="window-titlebar-drag"
+            data-tauri-drag-region
+            onMouseDown={(event) => void handleStartWindowDrag(event)}
+            onDoubleClick={() => void handleToggleMaximizeWindow()}
+          >
+            <div className="window-titlebar-brand">
+              <div className="window-titlebar-mark" aria-hidden="true">
+                <AppsIcon />
+              </div>
+              <strong>Linux PWA Manager</strong>
+            </div>
+          </div>
+
+          <div className="window-titlebar-actions" aria-label="Window controls">
+            <button
+              className="window-control-button"
+              type="button"
+              aria-label="Minimize window"
+              onClick={() => void handleMinimizeWindow()}
+            >
+              <MinimizeIcon />
+            </button>
+            <button
+              className="window-control-button"
+              type="button"
+              aria-label="Maximize window"
+              onClick={() => void handleToggleMaximizeWindow()}
+            >
+              <SquareIcon />
+            </button>
+            <button
+              className="window-control-button danger"
+              type="button"
+              aria-label="Close window"
+              onClick={() => void handleCloseWindow()}
+            >
+              <CloseIcon />
+            </button>
+          </div>
+        </header>
+
         <header className="app-topbar">
           <div className="app-brand">
             <div className="app-brand-mark" aria-hidden="true">
@@ -271,6 +367,16 @@ export default function App() {
           </div>
 
           <div className="app-topbar-actions">
+            <button
+              className="icon-button theme-toggle-button"
+              type="button"
+              title={appSettings.theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={appSettings.theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              onClick={() => void handleToggleTheme()}
+            >
+              {appSettings.theme === "dark" ? <SunIcon /> : <MoonIcon />}
+            </button>
+
             <button
               className="ghost-button"
               type="button"
@@ -308,35 +414,23 @@ export default function App() {
             </div>
 
             <div className="manager-list-frame">
-              <div style={{ padding: "8px 12px 4px" }}>
-                <div style={{ position: "relative" }}>
+              <div className="manager-search">
+                <div className="manager-search-field">
                   <input
                     id="search-input"
-                    className="mint-input"
+                    className="mint-input manager-search-input"
                     type="search"
                     placeholder="Search by name or URL…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     aria-label="Search web apps"
-                    style={{ width: "100%", boxSizing: "border-box" }}
                   />
                   {searchQuery ? (
                     <button
+                      className="manager-search-clear"
                       type="button"
                       aria-label="Clear search"
                       onClick={() => setSearchQuery("")}
-                      style={{
-                        position: "absolute",
-                        right: "8px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: "0",
-                        fontSize: "1rem",
-                        lineHeight: 1,
-                      }}
                     >
                       ×
                     </button>
@@ -561,11 +655,10 @@ export default function App() {
                 <BrowserIcon />
                 <h2>Detected browsers</h2>
                 <button
-                  className="ghost-button"
+                  className="ghost-button drawer-refresh-button"
                   type="button"
                   title="Rescan for installed browsers"
                   onClick={refresh}
-                  style={{ marginLeft: "auto", padding: "4px 8px", fontSize: "0.75rem" }}
                 >
                   Refresh
                 </button>
@@ -589,7 +682,8 @@ export default function App() {
             </section>
 
             <SettingsView
-              onSettingsSaved={setAppSettings}
+              currentSettings={appSettings}
+              onSettingsSaved={onSettingsSaved}
               onBackupImported={() => void refreshWebApps()}
             />
           </aside>
@@ -628,4 +722,39 @@ export default function App() {
       ) : null}
     </main>
   );
+}
+
+export default function App() {
+  const mode = new URLSearchParams(window.location.search).get("mode");
+  const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSettings() {
+      try {
+        const settings = await getSettings();
+        if (!cancelled) {
+          setAppSettings(settings);
+        }
+      } catch {
+        // Keep built-in defaults if settings cannot be loaded here.
+      }
+    }
+
+    void loadSettings();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    applyTheme(appSettings.theme);
+  }, [appSettings.theme]);
+
+  if (mode === "embedded") {
+    return <EmbeddedShell />;
+  }
+
+  return <ManagerApp appSettings={appSettings} onSettingsSaved={setAppSettings} />;
 }

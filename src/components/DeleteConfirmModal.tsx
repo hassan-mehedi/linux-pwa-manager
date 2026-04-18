@@ -51,12 +51,11 @@ export function DeleteConfirmModal({ appName, onConfirm, onCancel }: DeleteConfi
     <div className="mint-dialog-backdrop" role="presentation">
       <div
         ref={dialogRef}
-        className="mint-dialog"
+        className="mint-dialog mint-dialog-compact"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="delete-confirm-title"
         aria-describedby="delete-confirm-desc"
-        style={{ maxWidth: "420px" }}
       >
         <header className="mint-dialog-titlebar">
           <div className="mint-dialog-copy">
@@ -69,14 +68,13 @@ export function DeleteConfirmModal({ appName, onConfirm, onCancel }: DeleteConfi
           </div>
         </header>
 
-        <footer className="mint-dialog-actions">
+        <footer className="mint-dialog-footer mint-dialog-actions">
           <button className="mint-secondary-button" type="button" onClick={onCancel}>
             Cancel
           </button>
           <button
-            className="mint-primary-button"
+            className="mint-primary-button danger-button"
             type="button"
-            style={{ background: "var(--danger)" }}
             onClick={onConfirm}
             autoFocus
           >
