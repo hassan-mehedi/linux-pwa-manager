@@ -33,7 +33,6 @@ import {
   getSettings,
   minimizeCurrentWindow,
   saveSettings,
-  startDraggingCurrentWindow,
   toggleCurrentWindowMaximize,
   type AppSettings,
   toAssetUrl,
@@ -225,23 +224,6 @@ function ManagerApp({
     }
   }
 
-  async function handleStartWindowDrag(event: React.MouseEvent<HTMLElement>) {
-    if (event.button !== 0) {
-      return;
-    }
-
-    const target = event.target as HTMLElement;
-    if (target.closest("button, input, select, textarea, a")) {
-      return;
-    }
-
-    try {
-      await startDraggingCurrentWindow();
-    } catch (err) {
-      setActionError(errorMessage(err, "Failed to drag the window."));
-    }
-  }
-
   function openCreateDialog() {
     setEditingId(null);
     setIsCreating(true);
@@ -314,44 +296,57 @@ function ManagerApp({
       <section className="app-frame">
         <header className="window-titlebar">
           <div
-            className="window-titlebar-drag"
+            className="window-titlebar-side window-titlebar-side-start"
             data-tauri-drag-region
-            onMouseDown={(event) => void handleStartWindowDrag(event)}
             onDoubleClick={() => void handleToggleMaximizeWindow()}
           >
-            <div className="window-titlebar-brand">
+            <div className="window-titlebar-launcher" aria-hidden="true">
               <div className="window-titlebar-mark" aria-hidden="true">
                 <AppsIcon />
               </div>
-              <strong>Linux PWA Manager</strong>
             </div>
           </div>
 
-          <div className="window-titlebar-actions" aria-label="Window controls">
-            <button
-              className="window-control-button"
-              type="button"
-              aria-label="Minimize window"
-              onClick={() => void handleMinimizeWindow()}
-            >
-              <MinimizeIcon />
-            </button>
-            <button
-              className="window-control-button"
-              type="button"
-              aria-label="Maximize window"
-              onClick={() => void handleToggleMaximizeWindow()}
-            >
-              <SquareIcon />
-            </button>
-            <button
-              className="window-control-button danger"
-              type="button"
-              aria-label="Close window"
-              onClick={() => void handleCloseWindow()}
-            >
-              <CloseIcon />
-            </button>
+          <div
+            className="window-titlebar-center"
+            data-tauri-drag-region
+            onDoubleClick={() => void handleToggleMaximizeWindow()}
+          >
+            <strong>Linux PWA Manager</strong>
+          </div>
+
+          <div className="window-titlebar-side window-titlebar-side-end">
+            <div
+              className="window-titlebar-drag-fill"
+              data-tauri-drag-region
+              onDoubleClick={() => void handleToggleMaximizeWindow()}
+            />
+            <div className="window-titlebar-actions" aria-label="Window controls">
+              <button
+                className="window-control-button"
+                type="button"
+                aria-label="Minimize window"
+                onClick={() => void handleMinimizeWindow()}
+              >
+                <MinimizeIcon />
+              </button>
+              <button
+                className="window-control-button"
+                type="button"
+                aria-label="Maximize window"
+                onClick={() => void handleToggleMaximizeWindow()}
+              >
+                <SquareIcon />
+              </button>
+              <button
+                className="window-control-button danger"
+                type="button"
+                aria-label="Close window"
+                onClick={() => void handleCloseWindow()}
+              >
+                <CloseIcon />
+              </button>
+            </div>
           </div>
         </header>
 

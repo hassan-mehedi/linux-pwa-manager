@@ -33,13 +33,14 @@
   --button-primary-bg: linear-gradient(180deg, #3b82f6, #2563eb);
   --button-primary-shadow: 0 10px 18px rgba(37, 99, 235, 0.24);
   --button-secondary-bg: rgba(255, 255, 255, 0.72);
-  --window-bar-bg: rgba(255, 255, 255, 0.82);
-  --window-bar-border: rgba(15, 23, 42, 0.12);
+  --window-bar-bg: rgba(248, 250, 253, 0.9);
+  --window-bar-border: rgba(15, 23, 42, 0.1);
   --window-bar-text: #172033;
   --window-bar-muted: #5f728f;
-  --window-control-bg: rgba(15, 23, 42, 0.04);
-  --window-control-border: rgba(15, 23, 42, 0.08);
-  --window-control-hover: rgba(37, 99, 235, 0.12);
+  --window-launcher-bg: rgba(255, 255, 255, 0.74);
+  --window-control-bg: rgba(15, 23, 42, 0.05);
+  --window-control-border: rgba(15, 23, 42, 0.06);
+  --window-control-hover: rgba(15, 23, 42, 0.12);
   --window-control-danger: rgba(197, 59, 57, 0.82);
   --window-control-danger-hover: rgba(197, 59, 57, 0.96);
   --focus-ring: rgba(37, 99, 235, 0.28);
@@ -125,13 +126,14 @@
   --button-primary-bg: linear-gradient(180deg, #60a5fa, #2563eb);
   --button-primary-shadow: 0 12px 22px rgba(37, 99, 235, 0.34);
   --button-secondary-bg: rgba(15, 23, 42, 0.62);
-  --window-bar-bg: rgba(3, 7, 18, 0.94);
-  --window-bar-border: rgba(148, 163, 184, 0.14);
+  --window-bar-bg: rgba(48, 52, 73, 0.94);
+  --window-bar-border: rgba(148, 163, 184, 0.12);
   --window-bar-text: #e7eef9;
   --window-bar-muted: #b2c2db;
-  --window-control-bg: rgba(255, 255, 255, 0.04);
-  --window-control-border: rgba(148, 163, 184, 0.14);
-  --window-control-hover: rgba(96, 165, 250, 0.18);
+  --window-launcher-bg: rgba(255, 255, 255, 0.05);
+  --window-control-bg: rgba(255, 255, 255, 0.06);
+  --window-control-border: rgba(148, 163, 184, 0.1);
+  --window-control-hover: rgba(255, 255, 255, 0.12);
   --window-control-danger: rgba(248, 113, 113, 0.84);
   --window-control-danger-hover: rgba(248, 113, 113, 1);
   --focus-ring: rgba(96, 165, 250, 0.34);
@@ -239,61 +241,103 @@ a:focus-visible {
 
 .app-shell {
   min-height: 100vh;
-  padding: 18px;
+  padding: 0 0 18px;
 }
 
 .app-frame {
-  width: min(1160px, 100%);
-  margin: 0 auto;
+  width: 100%;
   display: grid;
   gap: 16px;
 }
 
-.window-titlebar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 54px;
-  padding: 10px 12px 10px 16px;
-  border: 1px solid var(--window-bar-border);
-  border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-    var(--window-bar-bg);
-  color: var(--window-bar-text);
-  box-shadow: var(--shadow-sm);
+.app-frame > :not(.window-titlebar) {
+  width: min(1160px, calc(100% - 36px));
+  margin: 0 auto;
 }
 
-.window-titlebar-drag {
+.window-titlebar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--window-bar-border);
+  -webkit-user-select: none;
+  user-select: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    var(--window-bar-bg);
+  color: var(--window-bar-text);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    var(--shadow-sm);
+}
+
+.window-titlebar-side {
   display: flex;
   align-items: center;
   min-width: 0;
+}
+
+.window-titlebar-side-start,
+.window-titlebar-center,
+.window-titlebar-drag-fill {
+  min-height: 30px;
+  cursor: grab;
+}
+
+.window-titlebar-side-start {
+  justify-content: flex-start;
+}
+
+.window-titlebar-side-end {
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.window-titlebar-drag-fill {
   flex: 1 1 auto;
 }
 
-.window-titlebar-brand {
+.window-titlebar-launcher {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 0;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--window-control-border);
+  border-radius: 12px;
+  background: var(--window-launcher-bg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.window-titlebar-brand strong {
+.window-titlebar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 10px;
+  text-align: center;
+}
+
+.window-titlebar-center strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  pointer-events: none;
 }
 
 .window-titlebar-mark {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
-  background: rgba(96, 165, 250, 0.12);
+  border-radius: 8px;
+  background: rgba(96, 165, 250, 0.14);
   color: var(--accent-strong);
   flex-shrink: 0;
 }
@@ -307,32 +351,30 @@ a:focus-visible {
 .window-titlebar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .window-control-button {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--window-control-border);
-  border-radius: 11px;
+  border-radius: 999px;
   background: var(--window-control-bg);
   color: var(--window-bar-muted);
   cursor: pointer;
   transition:
     background-color 140ms ease,
     border-color 140ms ease,
-    color 140ms ease,
-    transform 140ms ease;
+    color 140ms ease;
 }
 
 .window-control-button:hover {
   background: var(--window-control-hover);
   color: var(--window-bar-text);
-  transform: translateY(-1px);
 }
 
 .window-control-button.danger {
@@ -1481,11 +1523,31 @@ a:focus-visible {
 
 @media (max-width: 720px) {
   .app-shell {
-    padding: 12px;
+    padding-bottom: 12px;
+  }
+
+  .app-frame > :not(.window-titlebar) {
+    width: min(1160px, calc(100% - 24px));
   }
 
   .window-titlebar {
-    padding-inline: 10px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    padding-inline: 8px;
+  }
+
+  .window-titlebar-center {
+    padding-inline: 6px;
+  }
+
+  .window-titlebar-launcher {
+    width: 32px;
+    height: 32px;
+  }
+
+  .window-control-button {
+    width: 28px;
+    height: 28px;
   }
 
   .theme-toggle-button {
